@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Filament\Resources\Categories\CategoryResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
@@ -13,7 +14,24 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
-        return ProductResource::collection($products);
+        return response()->json([
+            "success" => true,
+            "products" => ProductResource::collection($products),
+        ]);
+    }
+    public function show($id)
+    {
+        $product = Product::find($id);
+           if (!$product) {
+            return response()->json([
+                "success" => false,
+                "category" => null
+            ]);
+        }
+        return response()->json([
+            "success" =>true,
+            "product" => new CategoryResource($product)
+        ]);
     }
     public function store(Request $request)
     {
@@ -50,7 +68,7 @@ class ProductController extends Controller
             "message" => "product saved sucessfully"
         ]);
     }
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
 
         $validator = Validator::make($request->all(), [
@@ -69,7 +87,7 @@ class ProductController extends Controller
 
         $product = Product::find($id);
 
-         if (!$product) {
+        if (!$product) {
             return response()->json([
                 "success" => "false",
                 "message" => "Invalid URL"
@@ -92,7 +110,8 @@ class ProductController extends Controller
             "message" => "product saved sucessfully"
         ]);
     }
-    public function delete($id){
+    public function delete($id)
+    {
         $product = Product::find($id);
         $product->delete();
         return response()->json([

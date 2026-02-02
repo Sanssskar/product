@@ -14,8 +14,30 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
-        return CategoryResource::collection($categories);
+        return response()->json([
+            "success" => true,
+            "categories" => CategoryResource::collection($categories),
+        ]);
     }
+
+    public function show($id)
+    {
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json([
+                "success" => false,
+                "category" => null
+            ]);
+        }
+        return response()->json([
+            "success" => true   ,
+            "category" => new CategoryResource($category)
+        ]);
+    }
+
+
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

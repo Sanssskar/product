@@ -7,7 +7,7 @@ Route::get('/', function () {
 });
 Route::get("/login",function(){
     return response()->json([
-        "success" => true,
+        "success" => false,
         "message" => "Invalid user"
-    ])->name("login");
-});
+    ]);
+})->name("login");

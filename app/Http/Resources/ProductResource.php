@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ProductResource extends JsonResource
 {
@@ -16,12 +17,14 @@ class ProductResource extends JsonResource
     {
         // return parent::toArray($request);
         return [
+            "id" => $this->id,
             "title" => $this->title,
             "price" => $this->price,
-            "discount" => $this->discount,
-            "image" => $this->image,
-            "category_id" => $this->category_id,
-
+            "discount_percent" => $this->discount."%",
+            "discount_amount" => $this->price * $this->discount / 100,
+            "discounted_price" => $this->discounted_price(),
+            "image" => asset(Storage::url($this->image)),
+            "category" => $this->category,
         ];
     }
 }
