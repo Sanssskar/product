@@ -24,7 +24,7 @@ class ProductResource extends JsonResource
             "discount_amount" => $this->price * $this->discount / 100,
             "discounted_price" => $this->discounted_price(),
             "image" => asset(Storage::url($this->image)),
-            "category" => $this->category,
+            "category" => $this->category->title,
         ];
     }
 }

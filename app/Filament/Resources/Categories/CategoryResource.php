@@ -18,9 +18,13 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
+    protected static ?int $navigationSort = 1;
+
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $pluralModelLabel = 'Category';
 
     public static function form(Schema $schema): Schema
     {
@@ -31,7 +35,11 @@ class CategoryResource extends Resource
     {
         return CategoriesTable::configure($table);
     }
-
+//for create function through link
+    public static function canCreate(): bool
+    {
+        return false;
+    }
     public static function getRelations(): array
     {
         return [

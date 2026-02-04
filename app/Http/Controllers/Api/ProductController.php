@@ -22,15 +22,15 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::find($id);
-           if (!$product) {
+        if (!$product) {
             return response()->json([
                 "success" => false,
-                "category" => null
+                "product" => null
             ]);
         }
         return response()->json([
-            "success" =>true,
-            "product" => new CategoryResource($product)
+            "success" => true,
+            "product" => new ProductResource($product)
         ]);
     }
     public function store(Request $request)
@@ -59,8 +59,8 @@ class ProductController extends Controller
 
         if ($image) {
             $file_name = time() . "." . $image->getClientOriginalExtension();
-            $image->move("images", $file_name);
-            $product->image = "image/$file_name";
+            $image->storeAs('public', $file_name);
+            $product->image = $file_name;
         }
         $product->save();
         return response()->json([

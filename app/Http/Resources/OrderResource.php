@@ -17,10 +17,12 @@ class OrderResource extends JsonResource
     {
         // return parent::toArray($request);
         return [
+            "order id" => $this->id,
             "total_amt" => $this->Total_amt,
             "status" => $this->status,
             "payment_verification" => $this->veri_status,
-            "payement_receipt" => asset(Storage::url($this->payement_receipt)),
+            "payment_receipt" => asset(Storage::url($this->payment_receipt)),
+            "items" => Order_ItemResource::collection($this->order_items),
         ];
     }
 }

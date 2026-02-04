@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string("Total_amt");
             $table->enum('status',['pending','approved','shipped','delivered','cancel'])->default('pending');
             $table->enum('veri_status',['verified','unverified'])->default('unverified');
-            $table->string('payement_receipt');
+            $table->string('payment_receipt');
             $table->timestamps();
         });
     }

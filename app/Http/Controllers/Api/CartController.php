@@ -16,24 +16,31 @@ class CartController extends Controller
     {
         $user = User::find(Auth::user()->id);
         $carts = $user->carts;
+        if (count($carts) == 0) {
+            return response()->json([
+                "success" => false,
+                "message" => "Cart is empty"
+            ]);
+        }
         return response()->json([
             "sucess" => true,
             "carts" => CartResource::collection($carts)
         ]);
     }
-      public function show($id)
+    public function show($id)
     {
         $user = User::find(Auth::user()->id);
 
         $cart = Cart::find($id);
-         if(!$cart){
-        return response()->json([
-            "success" => false,
-            "message" => "Nothing to show"
-        ]);
+        if (!$cart) {
+            return response()->json([
+                "success" => false,
+                "message" => "Nothing to show"
+            ]);
         }
         return response()->json([
             "sucess" => true,
+            "message" => "Cart Details",
             "carts" => new CartResource($cart)
         ]);
     }
@@ -42,21 +49,22 @@ class CartController extends Controller
     {
         $user = User::find(Auth::user()->id);
         $product = Product::find($request->product_id);
-        $existing_cart = Cart::where("user_id", $user->id)->where('product_id', $product->id)->first();
-        if ($existing_cart) {
-            $existing_cart->qty += $request->qty;
-            $existing_cart->amount += $request->qty * $product->discounted_price();
-            $existing_cart->save();
+        $cart = Cart::where("user_id", $user->id)->where('product_id', $product->id)->first();
+        if ($cart) {
+            $cart->qty += $request->qty;
+            $cart->amount += $request->qty * $product->discounted_price();
+            $cart->save();
         } else {
             $cart = new Cart();
             $cart->user_id = $user->id;
             $cart->product_id = $request->product_id;
             $cart->qty = $request->qty;
             $cart->amount = $request->qty * $product->discounted_price();
-            $cart->save();
         }
+        $cart->save();
         return response()->json([
             "success" => true,
+            "message" => "Items added to cart",
             "cart" => new CartResource($cart)
         ]);
     }
@@ -64,23 +72,39 @@ class CartController extends Controller
     {
         $user = User::find(Auth::user()->id);
         $product = Product::find($request->product_id);
-        $existing_cart = Cart::where("user_id", $user->id)->where('product_id', $product->id)->first();
-        $existing_cart->qty = $request->qty;
-        $existing_cart->amount = $request->qty * $product->discounted_price();
-        $existing_cart->save();
+        $cart = Cart::where("user_id", $user->id)->where('product_id', $product->id)->first();
+        $cart->qty = $request->qty;
+        $cart->amount = $request->qty * $product->discounted_price();
+        $cart->save();
         return response()->json([
             "success" => true,
-            "cart" => new CartResource($existing_cart)
+            "message" => "Cart has been updated",
+            "cart" => new CartResource($cart)
         ]);
     }
 
-    public function delete($id){
-        $user = User::find(Auth::user()->id);
-        $cart = Cart::find($id);
+    public function remove($id)
+    {
+        $user = Auth::user();
+
+        // Find cart item
+        $cart = Cart::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$cart) {
+            return response()->json([
+                "success" => false,
+                "message" => "Cart item not found"
+            ]);
+        }
+
+        // Delete cart item
         $cart->delete();
+
         return response()->json([
             "success" => true,
-            "message" => "Cart deleted successfully"
+            "message" => "Item removed from cart successfully"
         ]);
     }
 }
