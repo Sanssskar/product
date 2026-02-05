@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Order_ItemResource;
 use App\Http\Resources\OrderResource;
+use App\Mail\OrderPlacedMail;
+use App\Mail\OrderStatusUpdatedMail;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -12,6 +14,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -20,6 +23,12 @@ class OrderController extends Controller
         $user = User::find(Auth::user()->id);
         $orders = $user->orders;
         $order_items = $user->order_items;
+        if (count($orders) == 0) {
+            return response()->json([
+                "success" => false,
+                "message" => "No any pending orders"
+            ]);
+        }
         return response()->json([
             "success" => true,
             "message" => "Recent Orders",
@@ -57,7 +66,7 @@ class OrderController extends Controller
             $order->payment_receipt = $file_name;
         }
         $order->save();
-
+        Mail::to($user->email)->send(new OrderPlacedMail($order));
 
         foreach ($items as $item) {
             $o_item = new OrderItem();
@@ -79,7 +88,7 @@ class OrderController extends Controller
     {
         $order = Order::find($id);
 
-        if (!$order && $order->user->id !== Auth()->user->id) {
+        if (!$order || $order->user->id !== Auth::user()->id) {
             return response()->json([
                 "success" => false,
                 "message" => "Order not found"
@@ -88,9 +97,11 @@ class OrderController extends Controller
 
         $order->status = $request->status;
         $order->save();
+        Mail::to($order->user->email)
+            ->send(new OrderStatusUpdatedMail($order));
 
         // ✅ Delete cart when delivered or canceled
-        if (in_array($order->status, ['delivered', 'cancel'])) {
+        if (in_array($order->status, [ 'cancel'])) {
             Cart::where('user_id', $order->user_id)->delete();
         }
 
