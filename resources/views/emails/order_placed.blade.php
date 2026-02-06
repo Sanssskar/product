@@ -22,7 +22,7 @@
                         <td
                             style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding:50px 30px 40px; text-align:center;">
                             <h1 style="margin:0; font-size:32px; color:white; font-weight:700; letter-spacing:-0.5px;">
-                                Order Confirmed 🎉
+                                Order Placed 🎉
                             </h1>
                             <p style="margin:12px 0 0; color:rgba(255,255,255,0.9); font-size:17px;">
                                 We're preparing your order right now!
