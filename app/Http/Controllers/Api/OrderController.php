@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
+    // public function __construct(public Order $order) {}
+
     public function index()
     {
         $user = User::find(Auth::user()->id);
@@ -66,7 +68,6 @@ class OrderController extends Controller
             $order->payment_receipt = $file_name;
         }
         $order->save();
-        Mail::to($user->email)->send(new OrderPlacedMail($order));
 
         foreach ($items as $item) {
             $o_item = new OrderItem();
@@ -88,22 +89,21 @@ class OrderController extends Controller
     {
         $order = Order::find($id);
 
-        if (!$order || $order->user->id !== Auth::user()->id) {
+        if (!$order) {
             return response()->json([
                 "success" => false,
                 "message" => "Order not found"
             ]);
         }
+        if ($request->status !== 'cancel') {
+        return response()->json([
+            'success' => false,
+            'message' => 'You can only cancel the order'
+        ]);
+    }
 
         $order->status = $request->status;
-        $order->save();
-        Mail::to($order->user->email)
-            ->send(new OrderStatusUpdatedMail($order));
-
-        // ✅ Delete cart when delivered or canceled
-        if (in_array($order->status, [ 'cancel'])) {
-            Cart::where('user_id', $order->user_id)->delete();
-        }
+        $order->save(); // 🔥 Observer
 
         return response()->json([
             "success" => true,

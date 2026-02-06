@@ -14,15 +14,13 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get("/categories", [CategoryController::class, 'index']);
-    Route::get("/category/{id}", [CategoryController::class, 'show']);
+
     // Route::post("/category", [CategoryController::class, 'store']);
     // Route::patch("/category/{id}", [CategoryController::class, 'update']);
     // Route::delete("/category/{id}", [CategoryController::class, 'delete']);
 
 
-    Route::get("/products", [ProductController::class, 'index']);
-    Route::get("/product/{id}", [ProductController::class, 'show']);
+
     // Route::post("/product", [ProductController::class, 'store']);
     // Route::patch("/product", [ProductController::class, 'update']);
     // Route::delete("/product", [ProductController::class, 'delete']);
@@ -41,8 +39,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::post("/logout", [AuthController::class, 'logout']);
-
 });
+
+
+
+Route::get("/categories", [CategoryController::class, 'index']);
+Route::get("/category/{id}", [CategoryController::class, 'show']);
+
+
+
+Route::get("/products", [ProductController::class, 'index']);
+Route::get("/product/{id}", [ProductController::class, 'show']);
+
+
 
 Route::post("/register", [AuthController::class, 'register']);
 Route::post("/login", [AuthController::class, 'login']);

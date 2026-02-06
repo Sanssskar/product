@@ -30,7 +30,8 @@ class OrderStatusUpdatedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.order_status_updated'
+            view: 'emails.order_status_updated',
+            with: ['order' => $this->order]
         );
     }
 

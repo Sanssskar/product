@@ -24,7 +24,7 @@ class CartController extends Controller
         }
         return response()->json([
             "sucess" => true,
-            "carts" => CartResource::collection($carts)
+            "data" => CartResource::collection($carts)
         ]);
     }
     public function show($id)
@@ -65,21 +65,26 @@ class CartController extends Controller
         return response()->json([
             "success" => true,
             "message" => "Items added to cart",
-            "cart" => new CartResource($cart)
+
         ]);
     }
     public function update(Request $request, $id)
     {
         $user = User::find(Auth::user()->id);
         $product = Product::find($request->product_id);
-        $cart = Cart::where("user_id", $user->id)->where('product_id', $product->id)->first();
+        $cart = Cart::where('id',$id)->where("user_id", $user->id)->where('product_id', $product->id)->first();
+        if (!$cart) {
+            return response()->json([
+                "success" => false,
+                "message" => "Cart not found"
+            ]);
+        }
         $cart->qty = $request->qty;
         $cart->amount = $request->qty * $product->discounted_price();
         $cart->save();
         return response()->json([
             "success" => true,
             "message" => "Cart has been updated",
-            "cart" => new CartResource($cart)
         ]);
     }
 

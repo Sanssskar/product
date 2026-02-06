@@ -18,7 +18,6 @@ class CategoryResource extends JsonResource
         return [
             "id" => $this->id,
             "title" => $this->title,
-            "products"=>count($this->products) > 0 ? ProductResource::collection($this->products) : []
         ];
     }
 }

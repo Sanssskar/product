@@ -16,7 +16,7 @@ class ProductController extends Controller
         $products = Product::all();
         return response()->json([
             "success" => true,
-            "products" => ProductResource::collection($products),
+            "data" => ProductResource::collection($products),
         ]);
     }
     public function show($id)
@@ -29,7 +29,6 @@ class ProductController extends Controller
             ]);
         }
         return response()->json([
-            "success" => true,
             "product" => new ProductResource($product)
         ]);
     }
