@@ -36,10 +36,10 @@ class CategoryResource extends Resource
         return CategoriesTable::configure($table);
     }
 //for create function through link
-    public static function canCreate(): bool
-    {
-        return false;
-    }
+    // public static function canCreate(): bool
+    // {
+    //     return false;
+    // }
     public static function getRelations(): array
     {
         return [
