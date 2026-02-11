@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -20,6 +21,8 @@ class ProductForm
                     ->schema([
                         TextInput::make('title')
                             ->required(),
+                        RichEditor::make('description')
+                            ->required(),
                         TextInput::make('price')
                             ->required()
                             ->numeric()
@@ -33,7 +36,11 @@ class ProductForm
                             ->required(),
                         Select::make('category_id')
                             ->relationship('category', 'title')
-                            ->required(),
+                            ->required()
+                            ->createOptionForm([
+                                TextInput::make('title')
+                                    ->required(),
+                            ]),
                     ])
             ]);
     }

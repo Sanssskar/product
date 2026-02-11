@@ -51,6 +51,7 @@ class ProductController extends Controller
 
         $product = new Product();
         $product->title = $request->title;
+        $product->description = $request->description;
         $product->price = $request->price;
         $product->discount = $request->discount;
         $product->category_id = $request->category_id;
@@ -93,6 +94,7 @@ class ProductController extends Controller
             ]);
         }
         $product->title = $request->title;
+        $product->description = $request->description;
         $product->price = $request->price;
         $product->discount = $request->discount;
         $product->category_id = $request->category_id;
