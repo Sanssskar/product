@@ -18,13 +18,15 @@ class ProductsTable
                 TextColumn::make('title')
                     ->searchable(),
                 TextColumn::make('price')
-                    ->money('NPR')
+                    ->prefix('Rs. ')
                     ->sortable(),
                 TextColumn::make('discount')
-                    ->suffix('%')
+                    ->suffix(' %')
                     ->numeric()
                     ->sortable(),
-                ImageColumn::make('image'),
+                ImageColumn::make('image')
+                    ->square()
+                    ->size(50),
                 TextColumn::make('category.title')
                     ->searchable(),
                 TextColumn::make('created_at')

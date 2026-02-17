@@ -21,8 +21,13 @@ class ProductForm
                     ->schema([
                         TextInput::make('title')
                             ->required(),
-                        RichEditor::make('description')
-                            ->required(),
+                        Select::make('category_id')
+                            ->relationship('category', 'title')
+                            ->required()
+                            ->createOptionForm([
+                                TextInput::make('title')
+                                    ->required(),
+                            ]),
                         TextInput::make('price')
                             ->required()
                             ->numeric()
@@ -31,16 +36,17 @@ class ProductForm
                             ->suffix('%')
                             ->required()
                             ->numeric(),
+                        RichEditor::make('description')
+                            ->columnSpanFull()
+                            ->extraInputAttributes([
+                                'style' => 'min-height: 200px;'
+                            ])
+                            ->required(),
                         FileUpload::make('image')
                             ->image()
                             ->required(),
-                        Select::make('category_id')
-                            ->relationship('category', 'title')
-                            ->required()
-                            ->createOptionForm([
-                                TextInput::make('title')
-                                    ->required(),
-                            ]),
+
+
                     ])
             ]);
     }

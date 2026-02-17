@@ -76,6 +76,8 @@ class OrderController extends Controller
             $o_item->qty = $item['qty'];
             $o_item->save();
         }
+        // ✅ Delete all cart items of the user
+        $user->carts()->delete();
 
         $order = Order::find($order->id);
 
@@ -96,11 +98,11 @@ class OrderController extends Controller
             ]);
         }
         if ($request->status !== 'cancel') {
-        return response()->json([
-            'success' => false,
-            'message' => 'You can only cancel the order'
-        ]);
-    }
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only cancel the order'
+            ]);
+        }
 
         $order->status = $request->status;
         $order->save(); // 🔥 Observer

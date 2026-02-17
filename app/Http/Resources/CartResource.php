@@ -17,15 +17,16 @@ class CartResource extends JsonResource
     {
         // return parent::toArray($request);
         return [
-            "cart_id" => $this->id,
-            "product_id" => $this->product->id,
-            "product_name" => $this->product->title,
+            "cart_id"       => $this->id,
+            "product_id"    => $this->product->id,
+            "product_name"  => $this->product->title,
             "product_price" => $this->product->price,
-            "quantity" => $this->qty,
-            "discount" => $this->product->discount . "%",
-            "discount_Amt" => ($this->product->price * $this->product->discount / 100) * $this->qty,
-            "total_amt" => $this->amount,
-            "product_image" => asset(Storage::url($this->product->image))
+            "selling_price" => $this->product->price - ($this->product->price * $this->product->discount / 100), // price after discount
+            "quantity"      => $this->qty,
+            "discount"      => $this->product->discount . "%",
+            "discount_amt"  => ($this->product->price * $this->product->discount / 100) * $this->qty,
+            "total_amt"     => ($this->product->price - ($this->product->price * $this->product->discount / 100)) * $this->qty, // updated total after discount
+            "product_image" => asset(Storage::url($this->product->image)),
         ];
     }
 }
