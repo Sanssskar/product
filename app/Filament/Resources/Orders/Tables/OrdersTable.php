@@ -20,7 +20,11 @@ class OrdersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable(),
                 TextColumn::make('user.name')
                     ->numeric()
                     ->sortable(),
@@ -39,11 +43,8 @@ class OrdersTable
                         "verified" => "Verified",
                         "unverified" => "Unverified"
                     ]),
-                ImageColumn::make('payment_receipt'),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                ImageColumn::make('payment_receipt')
+                   ->square(),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()

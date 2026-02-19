@@ -61,10 +61,85 @@
             color: #991b1b;
             border: 1px solid #ef4444;
         }
+
+        /* Fullscreen image styles */
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .fullscreen-overlay.active {
+            display: flex;
+        }
+
+        .fullscreen-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+            transition: color 0.3s ease;
+        }
+
+        .close-fullscreen:hover {
+            color: #ff4444;
+        }
+
+        .fullscreen-caption {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            margin: 0 auto;
+            width: fit-content;
+            border-radius: 8px;
+        }
+
+        .receipt-image {
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .receipt-image:hover {
+            transform: scale(1.02);
+            opacity: 0.9;
+        }
     </style>
 </head>
 
 <body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+
+    <!-- Fullscreen Image Overlay -->
+    <div id="fullscreenOverlay" class="fullscreen-overlay" onclick="closeFullscreen()">
+        <span class="close-fullscreen" onclick="closeFullscreen(event)">&times;</span>
+        <img id="fullscreenImage" class="fullscreen-image" src="" alt="Payment Receipt Fullscreen">
+        <div id="fullscreenCaption" class="fullscreen-caption"></div>
+    </div>
 
     <div class="max-w-5xl mx-auto">
 
@@ -97,12 +172,12 @@
 
                 <!-- Customer Information -->
                 <div class="card p-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">
                         <i class="fas fa-user text-blue-600"></i>
                         Customer Information
                     </h2>
 
-                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-lg">
                         <div>
                             <dt class="text-gray-600 font-medium">Name</dt>
                             <dd class="mt-1 text-gray-900">{{ $order->user->name ?? '—' }}</dd>
@@ -139,29 +214,53 @@
                                             Product</th>
                                         <th
                                             class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Price</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Quantity</th>
                                         <th
                                             class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Product ID</th>
+                                            Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
+                                    @php
+                                        $calculatedTotal = 0;
+                                    @endphp
                                     @foreach ($order->order_items as $item)
+                                        @php
+                                            // Calculate price after discount
+                                            $originalPrice = $item->product->price ?? 0;
+                                            $discount = $item->product->discount ?? 0;
+                                            $priceAfterDiscount = $originalPrice - ($originalPrice * $discount / 100);
+                                            $subtotal = $priceAfterDiscount * $item->qty;
+                                            $calculatedTotal += $subtotal;
+                                        @endphp
                                         <tr>
                                             <td class="px-4 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">
                                                     {{ $item->product->title ?? 'Product #' . $item->product_id }}
                                                 </div>
-                                                @if ($item->product && $item->product->sku)
+                                                @if ($item->product && $item->product->sku ?? false)
                                                     <div class="text-xs text-gray-500">SKU: {{ $item->product->sku }}
                                                     </div>
                                                 @endif
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                @if($discount > 0)
+                                                    <span class="line-through text-gray-400">Rs. {{ number_format($originalPrice, 2) }}</span>
+                                                    <br>
+                                                    <span class="text-green-600">Rs. {{ number_format($priceAfterDiscount, 2) }}</span>
+                                                    <span class="text-xs text-green-500">({{ $discount }}% off)</span>
+                                                @else
+                                                    Rs. {{ number_format($originalPrice, 2) }}
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $item->qty }}
                                             </td>
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                #{{ $item->product_id }}
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                                Rs. {{ number_format($subtotal, 2) }}
                                             </td>
                                         </tr>
                                     @endforeach
@@ -174,6 +273,12 @@
                                 <span>Total Amount:</span>
                                 <span class="text-green-700">Rs. {{ number_format($order->Total_amt, 2) }}</span>
                             </div>
+                            @if(abs($calculatedTotal - floatval($order->Total_amt)) > 0.01)
+                                <div class="flex justify-between text-sm text-red-600 mt-2">
+                                    <span>Note:</span>
+                                    <span>Calculated total (Rs. {{ number_format($calculatedTotal, 2) }}) doesn't match order total</span>
+                                </div>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -190,10 +295,11 @@
 
                     @if ($order->payment_receipt)
                         <div class="mt-2">
-                            <p class="text-sm text-gray-600 mb-3">Uploaded payment proof:</p>
+                            <p class="text-sm text-gray-600 mb-3">Uploaded payment proof (click to view fullscreen):</p>
                             <img src="{{ asset(Storage::url($order->payment_receipt)) }}" alt="Payment Receipt"
-                                class="w-full rounded-lg shadow-md object-contain max-h-[500px] mx-auto border border-gray-200"
-                                onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found';">
+                                class="w-full rounded-lg shadow-md object-contain max-h-[500px] mx-auto border border-gray-200 receipt-image"
+                                onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found';"
+                                onclick="openFullscreen(this, 'Payment Receipt for Order #{{ $order->id }}')">
                         </div>
                     @else
                         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center text-yellow-700">
@@ -202,17 +308,34 @@
                     @endif
                 </div>
 
-                <!-- Quick Actions (optional) -->
-                {{-- <div class="card p-6">
-                    <h3 class="font-medium mb-3">Quick Actions</h3>
-                    <div class="space-y-2">
-                        <a href="{{ route('order.details', $order) }}"
-                            class="block text-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg">
-                            Back to List
-                        </a>
-                        <!-- You can add more admin actions here (verify, change status, etc.) -->
+                <!-- Order Summary Card -->
+                <div class="card p-6">
+                    <h3 class="font-medium mb-3">Order Summary</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal:</span>
+                            <span class="font-medium">Rs. {{ number_format($calculatedTotal ?? $order->Total_amt, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Payment Status:</span>
+                            <span class="status-badge {{ $order->veri_status }} text-xs">
+                                {{ ucfirst($order->veri_status) }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Order Status:</span>
+                            <span class="status-badge {{ $order->status }} text-xs">
+                                {{ ucfirst($order->status) }}
+                            </span>
+                        </div>
+                        <div class="border-t pt-2 mt-2">
+                            <div class="flex justify-between font-semibold">
+                                <span>Total:</span>
+                                <span class="text-green-700">Rs. {{ number_format($order->Total_amt, 2) }}</span>
+                            </div>
+                        </div>
                     </div>
-                </div> --}}
+                </div>
 
             </div>
 
@@ -225,6 +348,46 @@
         </div>
 
     </div>
+
+    <script>
+        // Function to open fullscreen image
+        function openFullscreen(imgElement, caption) {
+            const overlay = document.getElementById('fullscreenOverlay');
+            const fullscreenImg = document.getElementById('fullscreenImage');
+            const fullscreenCaption = document.getElementById('fullscreenCaption');
+
+            fullscreenImg.src = imgElement.src;
+            fullscreenCaption.textContent = caption || 'Payment Receipt';
+            overlay.classList.add('active');
+
+            // Prevent body scrolling when fullscreen is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Function to close fullscreen
+        function closeFullscreen(event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const overlay = document.getElementById('fullscreenOverlay');
+            overlay.classList.remove('active');
+
+            // Restore body scrolling
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close fullscreen with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeFullscreen();
+            }
+        });
+
+        // Prevent closing when clicking on the image itself
+        document.getElementById('fullscreenImage').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    </script>
 
 </body>
 
