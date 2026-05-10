@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\FeaturedProductController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
@@ -24,7 +25,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::post("/product", [ProductController::class, 'store']);
     // Route::patch("/product", [ProductController::class, 'update']);
     // Route::delete("/product", [ProductController::class, 'delete']);
-
+    // Route::post('/products/{id}/feature',   [FeaturedProductController::class, 'feature']);
+    // Route::post('/products/{id}/unfeature', [FeaturedProductController::class, 'unfeature']);
+    // Route::put('/featured-products/reorder',[FeaturedProductController::class, 'reorder']);
 
     Route::get("/carts", [CartController::class, 'index']);
     Route::get("/cart/{id}", [CartController::class, 'show']);
@@ -42,16 +45,17 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-
 Route::get("/categories", [CategoryController::class, 'index']);
 Route::get("/category/{id}", [CategoryController::class, 'show']);
-
 
 
 Route::get("/products", [ProductController::class, 'index']);
 Route::get("/product/{id}", [ProductController::class, 'show']);
 
+Route::get('/featured-products', [FeaturedProductController::class, 'index']);
 
 
 Route::post("/register", [AuthController::class, 'register']);
 Route::post("/login", [AuthController::class, 'login']);
+
+

@@ -18,6 +18,9 @@ return new class extends Migration
             $table->double('price');
             $table->double('discount');
             $table->string('image');
+            $table->boolean('is_featured')->default(false);
+            $table->unsignedTinyInteger('featured_order')->nullable();
+            $table->string('featured_image')->nullable(); 
             $table->foreignId('category_id')->constrained()->cascadeonDelete();
             $table->timestamps();
         });

@@ -8,24 +8,30 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
         return [
-            "id" => $this->id,
-            "title" => $this->title,
-            "description" => $this->description,
-            "price" => $this->price,
-            "discount_percent" => $this->discount."%",
-            "discount_amount" => $this->price * $this->discount / 100,
-            "discounted_price" => $this->discounted_price(),
-            "image" => asset(Storage::url($this->image)),
-            "category" => $this->category->title,
+            'id'               => $this->id,
+            'title'            => $this->title,
+            'description'      => $this->description,
+            'price'            => $this->price,
+            'discount_percent' => $this->discount . '%',
+            'discount_amount'  => round($this->price * $this->discount / 100, 2),
+
+            'discounted_price' => $this->discounted_price,
+
+            'image'    => asset(Storage::url($this->image)),
+            'category' => $this->category?->title,   
+
+
+            $this->mergeWhen($this->is_featured, [
+                'is_featured'     => true,
+                'featured_order'  => $this->featured_order,
+
+                'featured_image'  => asset(Storage::url(
+                    $this->featured_image ?? $this->image
+                )),
+            ]),
         ];
     }
 }

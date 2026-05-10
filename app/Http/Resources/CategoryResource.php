@@ -7,18 +7,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CategoryResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
         return [
-            "id" => $this->id,
-            "title" => $this->title,
-            "products" => ProductResource::collection($this->products)
+            'id'       => $this->id,
+            'title'    => $this->title,
+            'slug'     => $this->slug,
+            'products' => ProductResource::collection($this->whenLoaded('products')),
         ];
     }
 }
