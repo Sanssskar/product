@@ -48,10 +48,20 @@ class CartController extends Controller
     public function store(Request $request)
     {
         $user = User::find(Auth::user()->id);
+        if (!$user) {
+            return response()->json([
+                "success" => false,
+                "message" => "Invalid user"
+            ]);
+        }
         $product = Product::find($request->product_id);
+        if (!$product) {
+            return response()->json([
+                "success" => false,
+                "message" => "No products found"
+            ]);
+        }
         $cart = Cart::where("user_id", $user->id)->where('product_id', $product->id)->first();
-
-
         if ($cart) {
             $cart->qty += $request->qty;
             $cart->amount = $request->qty * $product->discounted_price;
@@ -74,7 +84,7 @@ class CartController extends Controller
     {
         $user = User::find(Auth::user()->id);
         $product = Product::find($request->product_id);
-        $cart = Cart::where('id',$id)->where("user_id", $user->id)->where('product_id', $product->id)->first();
+        $cart = Cart::where('id', $id)->where("user_id", $user->id)->where('product_id', $product->id)->first();
         if (!$cart) {
             return response()->json([
                 "success" => false,

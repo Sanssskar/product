@@ -43,7 +43,7 @@ class OrderController extends Controller
         $totalAmount = 0;
         $items = $request->items;
         if (is_string($items)) {
-            $items = json_decode($items, true); //decoding from string to array
+            $items = json_decode($items, true);
         }
 
         foreach ($items as $item) {
@@ -54,19 +54,23 @@ class OrderController extends Controller
                     "message" => "product id not found"
                 ]);
             }
-            $price = $product->discounted_price();
+            $price = $product->discounted_price;
             $totalAmount += $price * $item['qty'];
         }
 
         $order = new Order();
         $order->Total_amt = $totalAmount;
         $order->user_id = $user->id;
+        $order->payment_receipt = null; 
+
         $img = $request->file('payment_receipt');
         if ($img) {
             $file_name = time() . "." . $img->getClientOriginalExtension();
-            $img->storeAs('/', $file_name);
+            $img->move('storage', $file_name);
             $order->payment_receipt = $file_name;
         }
+
+        $order->save();
         $order->save();
 
         foreach ($items as $item) {
@@ -76,7 +80,6 @@ class OrderController extends Controller
             $o_item->qty = $item['qty'];
             $o_item->save();
         }
-        // ✅ Delete all cart items of the user
         $user->carts()->delete();
 
         $order = Order::find($order->id);
@@ -105,7 +108,7 @@ class OrderController extends Controller
         }
 
         $order->status = $request->status;
-        $order->save(); // 🔥 Observer
+        $order->save();
 
         return response()->json([
             "success" => true,
@@ -124,7 +127,6 @@ class OrderController extends Controller
             ]);
         }
 
-        // ❌ Block delete if order is NOT canceled
         if ($order->status !== 'cancel') {
             return response()->json([
                 "success" => false,
@@ -132,10 +134,8 @@ class OrderController extends Controller
             ]);
         }
 
-        // ✅ Delete order items first (safe)
         OrderItem::where('order_id', $order->id)->delete();
 
-        // ✅ Delete order
         $order->delete();
 
         return response()->json([
