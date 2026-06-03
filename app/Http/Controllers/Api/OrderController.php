@@ -3,22 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Order_ItemResource;
 use App\Http\Resources\OrderResource;
-use App\Mail\OrderPlacedMail;
-use App\Mail\OrderStatusUpdatedMail;
-use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
-    // public function __construct(public Order $order) {}
 
     public function index()
     {
@@ -61,7 +55,7 @@ class OrderController extends Controller
         $order = new Order();
         $order->Total_amt = $totalAmount;
         $order->user_id = $user->id;
-        $order->payment_receipt = null; 
+        $order->payment_receipt = null;
 
         $img = $request->file('payment_receipt');
         if ($img) {
