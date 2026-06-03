@@ -30,7 +30,7 @@ class CategoryController extends Controller
             ]);
         }
         return response()->json([
-            "success" => true   ,
+            "success" => true,
             "category" => new CategoryResource($category)
         ]);
     }
